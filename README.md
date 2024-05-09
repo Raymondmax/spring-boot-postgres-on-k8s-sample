@@ -28,6 +28,7 @@ You can watch this demo along with an introduction to Kubernetes concepts [here]
 
 1. Build a Docker image and push the image to Docker Hub
    ```
+   docker login docker.io/<Your Resigtry>
    docker build -t <your Docker Hub account>/spring-boot-postgres-on-k8s:v1 .
    docker push <your Docker Hub account>/spring-boot-postgres-on-k8s:v1
    ```
