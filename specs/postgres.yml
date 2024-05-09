@@ -8,21 +8,57 @@ data:
   postgres_password: c1oudc0w
 ---
 apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-pv
+  labels:
+    tier: database
+    app: spring
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: /data/postgresql
+---
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: postgres-pv-claim
+  labels:
+    tier: database
+    app: spring
 spec:
+  storageClassName: manual
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
-      storage: 32Gi
+      storage: 2Gi
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: postgres
+spec:apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pv-claim
+  labels:
+    tier: database
+    app: spring
 spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Gi
+  selector:
+    matchLabels:
+      app: postgres
   template:
     metadata:
       labels:
@@ -33,7 +69,7 @@ spec:
           persistentVolumeClaim:
             claimName: postgres-pv-claim
       containers:
-        - image: postgres
+        - image: postgres:14
           name: postgres
           env:
             - name: POSTGRES_USER
@@ -60,7 +96,7 @@ kind: Service
 metadata:
   name: postgres
 spec:
-  type: ClusterIP
+  type: NodePort
   ports:
     - port: 5432
   selector:
